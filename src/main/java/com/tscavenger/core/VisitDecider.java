@@ -12,7 +12,7 @@ public class VisitDecider implements IVisitDecider {
     @Override
     public boolean shouldVisit(Page referringPage, WebURL url) {
         String href = url.getURL().toLowerCase();
-        return !FILTERS.matcher(href).matches() && hasSameDomain(referringPage.getWebURL(), url);
+        return hasSameDomain(referringPage.getWebURL(), url) && !FILTERS.matcher(href).matches();
     }
 
     private boolean hasSameDomain(WebURL url1, WebURL url2) {
