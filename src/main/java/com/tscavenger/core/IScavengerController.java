@@ -28,13 +28,6 @@ public interface IScavengerController {
     void addSeed(String pageUrl);
 
     /**
-     * Add the {@code technology} to scavenge.
-     *
-     * @param technology
-     */
-    void addTechnology(String technology);
-
-    /**
      * Returns the list of websites that use the technologies added with
      * {@link #addTechnology(String)}.
      *

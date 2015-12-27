@@ -1,5 +1,8 @@
 package com.tscavenger.conf;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.tscavenger.core.IVisitDecider;
 import com.tscavenger.core.IVisitor;
 
@@ -10,7 +13,17 @@ public class Configuration {
     private IVisitor visitor;
     private IVisitDecider visitDecider;
 
+    private List<String> technologies;
+
     private Configuration() {
+        technologies = initTechnologies();
+    }
+
+    private List<String> initTechnologies() {
+        List<String> technologies = new ArrayList<>();
+        // TODO implement
+        technologies.add("Shopify");
+        return technologies;
     }
 
     public static Configuration getInstance() {
@@ -31,6 +44,10 @@ public class Configuration {
 
     public void setVisitDecider(IVisitDecider visitDecider) {
         this.visitDecider = visitDecider;
+    }
+
+    public List<String> getTechnologies() {
+        return technologies;
     }
 
 }

@@ -47,12 +47,12 @@ public class Scavenger extends WebCrawler implements IScavenger {
     @Override
     public void visit(Page page) {
         String url = page.getWebURL().getURL();
-        logger.info("URL: " + url);
+        logger.info(Thread.currentThread().getName() + " URL: " + url);
 
         if (page.getParseData() instanceof HtmlParseData) {
             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
             if (visitor != null) {
-                visitor.visit(page, htmlParseData, data);
+                visitor.visit(page, htmlParseData, data, visitDecider);
             }
         }
     }

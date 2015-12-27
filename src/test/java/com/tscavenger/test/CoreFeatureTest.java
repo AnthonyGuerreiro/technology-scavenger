@@ -16,7 +16,7 @@ public class CoreFeatureTest extends AbstractTest {
             setup();
             return new ScavengerController(getDefaultCrawlStorageFolder());
         } catch (Exception e) {
-            throw new RuntimeException("Could not  setup controller", e);
+            throw new RuntimeException("Could not setup controller", e);
         }
     }
 
@@ -24,7 +24,6 @@ public class CoreFeatureTest extends AbstractTest {
     public void testDetectShopify() {
         IScavengerController controller = getController();
         controller.addSeed("faucetface.com");
-        controller.addTechnology("Shopify");
         controller.start(7);
         List<String> websitesUsingTechnologies = controller.getWebsitesUsingTechnologies();
 

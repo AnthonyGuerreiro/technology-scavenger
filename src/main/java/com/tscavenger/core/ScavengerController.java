@@ -3,6 +3,8 @@ package com.tscavenger.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.tscavenger.data.ScavengerData;
+
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
 import edu.uci.ics.crawler4j.fetcher.PageFetcher;
@@ -45,18 +47,16 @@ public class ScavengerController implements IScavengerController {
     }
 
     @Override
-    public void addTechnology(String technology) {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public List<String> getWebsitesUsingTechnologies() {
         if (websitesUsingTechnologies == null) {
             websitesUsingTechnologies = new ArrayList<>();
             List<Object> dataList = controller.getCrawlersLocalData();
-            // TODO Auto-generated method stub
-            websitesUsingTechnologies.add("faucetface.com");
+
+            for (Object data : dataList) {
+                if (data instanceof ScavengerData) {
+                    websitesUsingTechnologies.addAll(((ScavengerData) data).getPages());
+                }
+            }
         }
 
         return websitesUsingTechnologies;
