@@ -1,5 +1,5 @@
 package com.tscavenger.core;
 
-public interface TScavenger {
+public interface IScavenger {
 
 }

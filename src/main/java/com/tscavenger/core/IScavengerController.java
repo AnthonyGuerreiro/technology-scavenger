@@ -2,7 +2,7 @@ package com.tscavenger.core;
 
 import java.util.List;
 
-public interface TScavengerController {
+public interface IScavengerController {
 
     /**
      * Start the crawl.<br />

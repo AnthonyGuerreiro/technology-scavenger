@@ -9,7 +9,7 @@ import edu.uci.ics.crawler4j.fetcher.PageFetcher;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 
-public class ScavengerController implements TScavengerController {
+public class ScavengerController implements IScavengerController {
 
     private CrawlController controller;
     private List<String> websitesUsingTechnologies;

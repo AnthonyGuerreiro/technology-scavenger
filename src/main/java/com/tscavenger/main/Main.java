@@ -1,7 +1,10 @@
 package com.tscavenger.main;
 
+import com.tscavenger.conf.Configuration;
+import com.tscavenger.core.IScavengerController;
 import com.tscavenger.core.ScavengerController;
-import com.tscavenger.core.TScavengerController;
+import com.tscavenger.core.VisitDecider;
+import com.tscavenger.core.Visitor;
 
 public class Main {
 
@@ -15,9 +18,16 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
-        TScavengerController controller = new ScavengerController(getCrawlStorageFolder(args));
+        setup(args);
+        IScavengerController controller = new ScavengerController(getCrawlStorageFolder(args));
         controller.addSeed("faucetface.com");
         controller.start(getNumberOfCrawlers(args));
+    }
+
+    private static void setup(String[] args) {
+        Configuration configuration = Configuration.getInstance();
+        configuration.setVisitDecider(new VisitDecider());
+        configuration.setVisitor(new Visitor());
     }
 
     private static String getCrawlStorageFolder(String[] args) {

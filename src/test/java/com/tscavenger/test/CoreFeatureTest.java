@@ -6,13 +6,14 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.tscavenger.core.IScavengerController;
 import com.tscavenger.core.ScavengerController;
-import com.tscavenger.core.TScavengerController;
 
 public class CoreFeatureTest extends AbstractTest {
 
-    private TScavengerController getController() {
+    private IScavengerController getController() {
         try {
+            setup();
             return new ScavengerController(getDefaultCrawlStorageFolder());
         } catch (Exception e) {
             throw new RuntimeException("Could not  setup controller", e);
@@ -21,7 +22,7 @@ public class CoreFeatureTest extends AbstractTest {
 
     @Test
     public void testDetectShopify() {
-        TScavengerController controller = getController();
+        IScavengerController controller = getController();
         controller.addSeed("faucetface.com");
         controller.addTechnology("Shopify");
         controller.start(7);

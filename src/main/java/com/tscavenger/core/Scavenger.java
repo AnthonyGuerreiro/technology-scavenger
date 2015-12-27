@@ -1,7 +1,6 @@
 package com.tscavenger.core;
 
-import java.util.regex.Pattern;
-
+import com.tscavenger.conf.Configuration;
 import com.tscavenger.data.ScavengerData;
 import com.tscavenger.log.LogManager;
 import com.tscavenger.log.Logger;
@@ -11,12 +10,20 @@ import edu.uci.ics.crawler4j.crawler.WebCrawler;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 import edu.uci.ics.crawler4j.url.WebURL;
 
-public class Scavenger extends WebCrawler implements TScavenger {
+public class Scavenger extends WebCrawler implements IScavenger {
 
     private final static Logger logger = LogManager.getInstance(Scavenger.class);
-    private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp3|zip|gz))$");
 
     private ScavengerData data = new ScavengerData();
+
+    private IVisitDecider visitDecider;
+    private IVisitor visitor;
+
+    public Scavenger() {
+        Configuration configuration = Configuration.getInstance();
+        visitDecider = configuration.getVisitDecider();
+        visitor = configuration.getVisitor();
+    }
 
     /**
      * This method receives two parameters. The first parameter is the page in
@@ -30,12 +37,7 @@ public class Scavenger extends WebCrawler implements TScavenger {
      */
     @Override
     public boolean shouldVisit(Page referringPage, WebURL url) {
-        String href = url.getURL().toLowerCase();
-        return !FILTERS.matcher(href).matches() && hasSameDomain(referringPage.getWebURL(), url);
-    }
-
-    private boolean hasSameDomain(WebURL url1, WebURL url2) {
-        return url1.getDomain().equalsIgnoreCase(url2.getDomain());
+        return visitDecider == null ? true : visitDecider.shouldVisit(referringPage, url);
     }
 
     /**
@@ -49,7 +51,9 @@ public class Scavenger extends WebCrawler implements TScavenger {
 
         if (page.getParseData() instanceof HtmlParseData) {
             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
-            // TODO implement
+            if (visitor != null) {
+                visitor.visit(page, htmlParseData, data);
+            }
         }
     }
 
