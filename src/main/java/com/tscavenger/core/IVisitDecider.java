@@ -7,4 +7,6 @@ public interface IVisitDecider {
 
     boolean shouldVisit(Page referringPage, WebURL url);
 
+    void stopVisit(Page referringPage);
+
 }
