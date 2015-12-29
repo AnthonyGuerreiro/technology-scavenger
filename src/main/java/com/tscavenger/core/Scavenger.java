@@ -47,7 +47,7 @@ public class Scavenger extends WebCrawler implements IScavenger {
     @Override
     public void visit(Page page) {
         String url = page.getWebURL().getURL();
-        logger.info(Thread.currentThread().getName() + " URL: " + url);
+        logger.trace(Thread.currentThread().getName() + " URL: " + url);
 
         if (page.getParseData() instanceof HtmlParseData) {
             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();

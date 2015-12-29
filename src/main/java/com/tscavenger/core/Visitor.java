@@ -7,11 +7,15 @@ import java.util.regex.Pattern;
 
 import com.tscavenger.conf.Configuration;
 import com.tscavenger.data.ScavengerData;
+import com.tscavenger.log.LogManager;
+import com.tscavenger.log.Logger;
 
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 
 public class Visitor implements IVisitor {
+
+    private static Logger logger = LogManager.getInstance(Visitor.class);
 
     private Pattern pattern;
 
@@ -25,7 +29,7 @@ public class Visitor implements IVisitor {
                 sb.append("|");
             }
         }
-        pattern = Pattern.compile(sb.toString());
+        pattern = Pattern.compile(sb.toString(), Pattern.CASE_INSENSITIVE);
     }
 
     private String escapeRegexSpecialCharacters(String technology) {
@@ -34,15 +38,20 @@ public class Visitor implements IVisitor {
     }
 
     @Override
-    public void visit(Page page, HtmlParseData htmlParseData, ScavengerData data, IVisitDecider visitDecider) {
-        Matcher matcher = pattern.matcher(htmlParseData.getText());
+    public void visit(Page page, HtmlParseData htmlParseData, ScavengerData data,
+            IVisitDecider visitDecider) {
+
+        if (visitDecider.skipsDomain(page.getWebURL().getDomain())) {
+            return;
+        }
+
+        Matcher matcher = pattern.matcher(htmlParseData.getHtml());
         if (matcher.find()) {
             visitDecider.stopVisit(page);
+            logger.info(page.getWebURL().getDomain() + " uses given technologies");
             addData(page, data);
         }
-        if (page.getWebURL().getDomain().equalsIgnoreCase("faucetface.com")) {
-            addData(page, data);
-        }
+
     }
 
     private void addData(Page page, ScavengerData data) {

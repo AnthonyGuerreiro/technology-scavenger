@@ -11,24 +11,32 @@ public class VisitDecider implements IVisitDecider {
 
     private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp3|zip|gz))$");
 
-    private Set<Page> skippedPages = new HashSet<>();
+    private Set<String> skippedDomains = new HashSet<>();
 
     @Override
     public boolean shouldVisit(Page referringPage, WebURL url) {
-        if (skippedPages.contains(referringPage)) {
+        String domain = referringPage.getWebURL().getDomain();
+        // System.out.println("shouldvisit " +
+        // referringPage.getWebURL().getURL() + " ____ " + url.getURL());
+        if (skippedDomains.contains(domain)) {
             return false;
         }
         String href = url.getURL().toLowerCase();
-        return hasSameDomain(referringPage.getWebURL(), url) && !FILTERS.matcher(href).matches();
+        return hasSameDomain(domain, url.getDomain()) && !FILTERS.matcher(href).matches();
     }
 
-    private boolean hasSameDomain(WebURL url1, WebURL url2) {
-        return url1.getDomain().equalsIgnoreCase(url2.getDomain());
+    private boolean hasSameDomain(String domain1, String domain2) {
+        return domain1.equalsIgnoreCase(domain2);
     }
 
     @Override
     public void stopVisit(Page referringPage) {
-        skippedPages.add(referringPage);
+        skippedDomains.add(referringPage.getWebURL().getDomain());
+    }
+
+    @Override
+    public boolean skipsDomain(String domain) {
+        return skippedDomains.contains(domain);
     }
 
 }

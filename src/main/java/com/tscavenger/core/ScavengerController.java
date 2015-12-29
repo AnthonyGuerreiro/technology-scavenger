@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.tscavenger.data.ScavengerData;
+import com.tscavenger.log.LogManager;
+import com.tscavenger.log.Logger;
 
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
@@ -12,6 +14,8 @@ import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 
 public class ScavengerController implements IScavengerController {
+
+    private static Logger logger = LogManager.getInstance(ScavengerController.class);
 
     private CrawlController controller;
     private List<String> websitesUsingTechnologies;
@@ -30,9 +34,11 @@ public class ScavengerController implements IScavengerController {
 
     @Override
     public void addSeed(String pageUrl) {
+
         if (!pageUrl.startsWith("http://")) {
             pageUrl = "http://" + pageUrl;
         }
+
         controller.addSeed(pageUrl);
     }
 
@@ -51,7 +57,6 @@ public class ScavengerController implements IScavengerController {
         if (websitesUsingTechnologies == null) {
             websitesUsingTechnologies = new ArrayList<>();
             List<Object> dataList = controller.getCrawlersLocalData();
-
             for (Object data : dataList) {
                 if (data instanceof ScavengerData) {
                     websitesUsingTechnologies.addAll(((ScavengerData) data).getPages());

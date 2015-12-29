@@ -9,4 +9,6 @@ public interface IVisitDecider {
 
     void stopVisit(Page referringPage);
 
+    boolean skipsDomain(String domain);
+
 }
