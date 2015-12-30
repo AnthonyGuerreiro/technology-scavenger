@@ -18,4 +18,8 @@ public class Logger {
     public void trace(String string) {
         // nop
     }
+
+    public void error(Exception e) {
+        error("", e);
+    }
 }
