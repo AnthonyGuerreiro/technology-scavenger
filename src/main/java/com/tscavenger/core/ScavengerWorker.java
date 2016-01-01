@@ -39,6 +39,9 @@ public class ScavengerWorker implements Runnable {
     public void run() {
         logger.info("Processing website " + websiteInput);
         Status newStatus = Status.DOES_NOT_USE_TECHNOLOGY;
+        String detail = null;
+        String url = null;
+
         try {
             CrawlController controller = new CrawlControllerManager().getCrawlController();
             controller.addSeed(website);
@@ -53,6 +56,9 @@ public class ScavengerWorker implements Runnable {
                     ScavengerData data = (ScavengerData) localData;
                     if (!data.getPages().isEmpty()) {
                         newStatus = Status.USES_TECHNOLOGY;
+                        String domain = data.getPages().iterator().next();
+                        detail = data.getDetail(domain);
+                        url = data.getUrl(domain);
                         break;
                     }
                 }
@@ -65,7 +71,11 @@ public class ScavengerWorker implements Runnable {
         try {
             String msg = "Updating website " + websiteInput + " with status " + newStatus.name() + " in db";
             logger.info(msg);
-            int updated = new DAO().updateWebsiteWithStatus(websiteInput, newStatus);
+            int updated = new DAO().updateWebsiteWithStatus(websiteInput, newStatus, detail, url);
+            if (updated == 0) {
+                logger.warn("Failed to update website " + websiteInput + " with status " + newStatus.name()
+                        + " in db: no rows were affected");
+            }
         } catch (SQLException e) {
             String msg = "Could not update website " + websiteInput + " with status " + newStatus.name()
                     + " in db";

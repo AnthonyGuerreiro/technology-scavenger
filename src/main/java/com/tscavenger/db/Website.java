@@ -16,4 +16,5 @@ public class Website {
     public Status getStatus() {
         return status;
     }
+
 }

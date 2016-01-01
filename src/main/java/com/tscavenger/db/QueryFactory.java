@@ -9,7 +9,7 @@ public class QueryFactory {
     }
 
     public String getUpdateWebsiteStatusQuery() {
-        return "UPDATE " + TABLE_WEBSITE + " set status = ? WHERE name = ?";
+        return "UPDATE " + TABLE_WEBSITE + " set status = ?, detail = ?, url = ? WHERE name = ?";
     }
 
     public String getWebsiteByName() {

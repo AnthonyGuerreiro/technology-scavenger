@@ -77,13 +77,17 @@ public class DAO {
         }
     }
 
-    public int updateWebsiteWithStatus(String website, Status status) throws SQLException {
+    public int updateWebsiteWithStatus(String website, Status status, String detail, String url)
+            throws SQLException {
+
         Connection connection = getConnection();
         try {
             PreparedStatement statement = getStatement(connection,
                     new QueryFactory().getUpdateWebsiteStatusQuery());
             addParam(statement, 1, status.value());
-            addParam(statement, 2, website);
+            addParam(statement, 2, detail);
+            addParam(statement, 3, url);
+            addParam(statement, 4, website);
             int updated = statement.executeUpdate();
             close(statement);
             return updated;

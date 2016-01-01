@@ -22,7 +22,7 @@ public class Visitor implements IVisitor {
 
     public Visitor() {
         List<String> technologies = Configuration.getInstance().getTechnologies();
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("(");
         Iterator<String> it = technologies.iterator();
         while (it.hasNext()) {
             sb.append(escapeRegexSpecialCharacters(it.next()));
@@ -30,6 +30,7 @@ public class Visitor implements IVisitor {
                 sb.append("|");
             }
         }
+        sb.append(")");
         pattern = Pattern.compile(sb.toString(), Pattern.CASE_INSENSITIVE);
     }
 
@@ -50,7 +51,8 @@ public class Visitor implements IVisitor {
         if (matcher.find()) {
             visitDecider.stopVisit(page);
             logger.info(page.getWebURL().getDomain() + " uses given technologies");
-            addData(page, data);
+            String detail = "Found " + matcher.group(1) + " in HTML";
+            addData(page, detail, data);
 
             CrawlController controller = new CrawlControllerManager()
                     .getExistingCrawlController(parentThread);
@@ -61,8 +63,8 @@ public class Visitor implements IVisitor {
 
     }
 
-    private void addData(Page page, ScavengerData data) {
-        data.addPage(page);
+    private void addData(Page page, String detail, ScavengerData data) {
+        data.addPage(page, detail);
     }
 
 }
