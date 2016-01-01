@@ -12,4 +12,13 @@ public enum Status {
     public int value() {
         return value;
     }
+
+    public static Status fromValue(int value) {
+        for (Status status : Status.values()) {
+            if (status.value == value) {
+                return status;
+            }
+        }
+        return NOT_PROCESSED;
+    }
 }

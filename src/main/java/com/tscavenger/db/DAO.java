@@ -4,6 +4,7 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.tscavenger.log.LogManager;
@@ -12,6 +13,9 @@ import com.tscavenger.log.Logger;
 public class DAO {
 
     private final static Logger logger = LogManager.getInstance(DAO.class);
+    private static Connection connection;
+
+    private static boolean reuseConnection = true;
 
     static {
         try {
@@ -29,7 +33,35 @@ public class DAO {
     }
 
     private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(getConnectionUrl());
+
+        if (!reuseConnection) {
+            return DriverManager.getConnection(getConnectionUrl());
+        }
+
+        if (connection == null) {
+            synchronized (DAO.class) {
+                if (connection == null) {
+                    connection = DriverManager.getConnection(getConnectionUrl());
+                }
+            }
+        }
+        return connection;
+    }
+
+    public Website getWebsiteByName(String website) throws SQLException {
+        Connection connection = getConnection();
+        try {
+            PreparedStatement statement = getStatement(connection, new QueryFactory().getWebsiteByName());
+            addParam(statement, 1, website);
+            ResultSet rs = statement.executeQuery();
+            if (!rs.next()) {
+                return null;
+            }
+            Website site = new Website(rs.getString("name"), Status.fromValue(rs.getInt("status")));
+            return site;
+        } finally {
+            close(connection);
+        }
     }
 
     public int addWebsite(String website) throws SQLException {
@@ -81,13 +113,15 @@ public class DAO {
     }
 
     private void close(Connection connection) {
-        try {
-            if (connection != null && !connection.isClosed()) {
-                connection.close();
+
+        if (!reuseConnection) {
+            try {
+                if (connection != null && !connection.isClosed()) {
+                    connection.close();
+                }
+            } catch (SQLException e) {
+                // nop
             }
-        } catch (SQLException e) {
-            // nop
         }
     }
-
 }

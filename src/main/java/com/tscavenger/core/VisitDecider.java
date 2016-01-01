@@ -16,8 +16,6 @@ public class VisitDecider implements IVisitDecider {
     @Override
     public boolean shouldVisit(Page referringPage, WebURL url) {
         String domain = referringPage.getWebURL().getDomain();
-        // System.out.println("shouldvisit " +
-        // referringPage.getWebURL().getURL() + " ____ " + url.getURL());
         if (skippedDomains.contains(domain)) {
             return false;
         }

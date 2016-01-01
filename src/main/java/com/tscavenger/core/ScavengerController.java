@@ -1,70 +1,65 @@
 package com.tscavenger.core;
 
-import java.util.ArrayList;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import com.tscavenger.data.ScavengerData;
+import com.tscavenger.conf.Configuration;
+import com.tscavenger.db.DAO;
+import com.tscavenger.db.Status;
+import com.tscavenger.db.Website;
 import com.tscavenger.log.LogManager;
 import com.tscavenger.log.Logger;
-
-import edu.uci.ics.crawler4j.crawler.CrawlConfig;
-import edu.uci.ics.crawler4j.crawler.CrawlController;
-import edu.uci.ics.crawler4j.fetcher.PageFetcher;
-import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
-import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 
 public class ScavengerController implements IScavengerController {
 
     private static Logger logger = LogManager.getInstance(ScavengerController.class);
 
-    private CrawlController controller;
-    private List<String> websitesUsingTechnologies;
+    // TODO read threadpool size from properties
+    private ExecutorService threadpool = Executors.newFixedThreadPool(20);
 
-    public ScavengerController(String crawlStorageFolder) throws Exception {
-
-        CrawlConfig config = new CrawlConfig();
-        config.setCrawlStorageFolder(crawlStorageFolder);
-        config.setMaxDepthOfCrawling(1);
-
-        PageFetcher pageFetcher = new PageFetcher(config);
-        RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
-        RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
-        controller = new CrawlController(config, pageFetcher, robotstxtServer);
-    }
+    // TODO read from properties
+    private static int NR_CRAWLERS_PER_CONTROLLER = 10;
 
     @Override
-    public void addSeed(String pageUrl) {
+    public void start() throws SQLException {
 
-        if (!pageUrl.startsWith("http://")) {
-            pageUrl = "http://" + pageUrl;
+        Configuration configuration = Configuration.getInstance();
+        List<String> websites = configuration.getWebsites();
+
+        DAO dao = new DAO();
+
+        for (String website : websites) {
+            Website site = dao.getWebsiteByName(website);
+            if (isPreprocessed(site)) {
+                String msg = "Skipping " + website + ": previously processed with status "
+                        + site.getStatus().name();
+                logger.info(msg);
+                continue;
+            }
+            boolean websiteIsAdded = site != null;
+            if (!websiteIsAdded) {
+                int nrAddedWebsites = dao.addWebsite(website);
+                boolean addedWebsite = nrAddedWebsites != 0;
+            }
+
+            try {
+                threadpool.execute(new ScavengerWorker(NR_CRAWLERS_PER_CONTROLLER, website));
+            } catch (Exception e) {
+                logger.info("Failed to process website " + website, e);
+            }
         }
-
-        controller.addSeed(pageUrl);
     }
 
-    @Override
-    public void start(int numberOfCrawlers) {
-        controller.start(Scavenger.class, numberOfCrawlers);
-    }
-
-    @Override
-    public void startNonBlocking(int numberOfCrawlers) {
-        controller.startNonBlocking(Scavenger.class, numberOfCrawlers);
+    private boolean isPreprocessed(Website website) {
+        return website != null && website.getStatus() != Status.NOT_PROCESSED;
     }
 
     @Override
     public List<String> getWebsitesUsingTechnologies() {
-        if (websitesUsingTechnologies == null) {
-            websitesUsingTechnologies = new ArrayList<>();
-            List<Object> dataList = controller.getCrawlersLocalData();
-            for (Object data : dataList) {
-                if (data instanceof ScavengerData) {
-                    websitesUsingTechnologies.addAll(((ScavengerData) data).getPages());
-                }
-            }
-        }
-
-        return websitesUsingTechnologies;
+        // TODO implement
+        return null;
     }
 
 }

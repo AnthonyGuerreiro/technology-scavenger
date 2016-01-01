@@ -10,6 +10,7 @@ import com.tscavenger.data.ScavengerData;
 import com.tscavenger.log.LogManager;
 import com.tscavenger.log.Logger;
 
+import edu.uci.ics.crawler4j.crawler.CrawlController;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.parser.HtmlParseData;
 
@@ -38,8 +39,8 @@ public class Visitor implements IVisitor {
     }
 
     @Override
-    public void visit(Page page, HtmlParseData htmlParseData, ScavengerData data,
-            IVisitDecider visitDecider) {
+    public void visit(Page page, HtmlParseData htmlParseData, ScavengerData data, IVisitDecider visitDecider,
+            String parentThread) {
 
         if (visitDecider.skipsDomain(page.getWebURL().getDomain())) {
             return;
@@ -50,6 +51,12 @@ public class Visitor implements IVisitor {
             visitDecider.stopVisit(page);
             logger.info(page.getWebURL().getDomain() + " uses given technologies");
             addData(page, data);
+
+            CrawlController controller = new CrawlControllerManager()
+                    .getExistingCrawlController(parentThread);
+            if (controller != null) {
+                controller.shutdown();
+            }
         }
 
     }

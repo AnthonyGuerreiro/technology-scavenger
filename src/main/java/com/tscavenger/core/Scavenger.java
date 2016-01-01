@@ -18,11 +18,13 @@ public class Scavenger extends WebCrawler implements IScavenger {
 
     private IVisitDecider visitDecider;
     private IVisitor visitor;
+    private String parentThread;
 
     public Scavenger() {
         Configuration configuration = Configuration.getInstance();
         visitDecider = configuration.getVisitDecider();
         visitor = configuration.getVisitor();
+        parentThread = Thread.currentThread().getName();
     }
 
     /**
@@ -52,7 +54,7 @@ public class Scavenger extends WebCrawler implements IScavenger {
         if (page.getParseData() instanceof HtmlParseData) {
             HtmlParseData htmlParseData = (HtmlParseData) page.getParseData();
             if (visitor != null) {
-                visitor.visit(page, htmlParseData, data, visitDecider);
+                visitor.visit(page, htmlParseData, data, visitDecider, parentThread);
             }
         }
     }
