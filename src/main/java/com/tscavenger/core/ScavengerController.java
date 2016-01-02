@@ -28,7 +28,7 @@ public class ScavengerController implements IScavengerController {
         Configuration configuration = Configuration.getInstance();
         List<String> websites = configuration.getWebsites();
 
-        DAO dao = new DAO();
+        DAO dao = configuration.getDAOFactory().getDAO();
 
         for (String website : websites) {
             Website site = dao.getWebsiteByName(website);

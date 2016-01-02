@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.tscavenger.core.IVisitDecider;
 import com.tscavenger.core.IVisitor;
+import com.tscavenger.db.DAOFactory;
 import com.tscavenger.log.LogManager;
 import com.tscavenger.log.Logger;
 
@@ -21,6 +22,8 @@ public class Configuration {
 
     private List<String> technologies;
     private List<String> websites;
+
+    private DAOFactory daoFactory = new DAOFactory();
 
     private Configuration() {
         technologies = initList("technologies", "/conf/technologies");
@@ -72,4 +75,7 @@ public class Configuration {
         return websites;
     }
 
+    public DAOFactory getDAOFactory() {
+        return daoFactory;
+    }
 }

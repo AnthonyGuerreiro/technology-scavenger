@@ -13,9 +13,9 @@ import com.tscavenger.log.Logger;
 public class DAO {
 
     private final static Logger logger = LogManager.getInstance(DAO.class);
-    private static Connection connection;
+    private Connection connection;
 
-    private static boolean reuseConnection = true;
+    private boolean reuseConnection = true;
 
     static {
         try {

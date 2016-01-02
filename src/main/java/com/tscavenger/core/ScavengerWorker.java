@@ -3,6 +3,7 @@ package com.tscavenger.core;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.tscavenger.conf.Configuration;
 import com.tscavenger.data.ScavengerData;
 import com.tscavenger.db.DAO;
 import com.tscavenger.db.Status;
@@ -71,7 +72,7 @@ public class ScavengerWorker implements Runnable {
         try {
             String msg = "Updating website " + websiteInput + " with status " + newStatus.name() + " in db";
             logger.info(msg);
-            int updated = new DAO().updateWebsiteWithStatus(websiteInput, newStatus, detail, url);
+            int updated = getDAO().updateWebsiteWithStatus(websiteInput, newStatus, detail, url);
             if (updated == 0) {
                 logger.warn("Failed to update website " + websiteInput + " with status " + newStatus.name()
                         + " in db: no rows were affected");
@@ -81,5 +82,9 @@ public class ScavengerWorker implements Runnable {
                     + " in db";
             logger.error(msg, e);
         }
+    }
+
+    private DAO getDAO() {
+        return Configuration.getInstance().getDAOFactory().getDAO();
     }
 }
