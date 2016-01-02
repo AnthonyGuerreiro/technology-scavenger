@@ -6,7 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.tscavenger.conf.Configuration;
-import com.tscavenger.db.DAO;
+import com.tscavenger.db.IDAO;
 import com.tscavenger.db.Status;
 import com.tscavenger.db.Website;
 import com.tscavenger.log.LogManager;
@@ -28,7 +28,7 @@ public class ScavengerController implements IScavengerController {
         Configuration configuration = Configuration.getInstance();
         List<String> websites = configuration.getWebsites();
 
-        DAO dao = configuration.getDAOFactory().getDAO();
+        IDAO dao = configuration.getDAOFactory().getDAO();
 
         for (String website : websites) {
             Website site = dao.getWebsiteByName(website);

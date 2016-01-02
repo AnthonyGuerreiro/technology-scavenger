@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.tscavenger.conf.Configuration;
 import com.tscavenger.data.ScavengerData;
-import com.tscavenger.db.DAO;
+import com.tscavenger.db.IDAO;
 import com.tscavenger.db.Status;
 import com.tscavenger.log.LogManager;
 import com.tscavenger.log.Logger;
@@ -84,7 +84,7 @@ public class ScavengerWorker implements Runnable {
         }
     }
 
-    private DAO getDAO() {
+    private IDAO getDAO() {
         return Configuration.getInstance().getDAOFactory().getDAO();
     }
 }
