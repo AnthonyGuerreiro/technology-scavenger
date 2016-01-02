@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import com.tscavenger.log.LogManager;
 import com.tscavenger.log.Logger;
 
-public class DAO {
+public class DAO implements IDAO {
 
     private final static Logger logger = LogManager.getInstance(DAO.class);
     private Connection connection;
