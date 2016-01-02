@@ -2,6 +2,7 @@ package com.tscavenger.core;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -16,11 +17,46 @@ public class ScavengerController implements IScavengerController {
 
     private static Logger logger = LogManager.getInstance(ScavengerController.class);
 
-    // TODO read threadpool size from properties
-    private ExecutorService threadpool = Executors.newFixedThreadPool(20);
+    private ExecutorService threadpool;
+    private int NR_CRAWLERS_PER_CONTROLLER = 10;
 
-    // TODO read from properties
-    private static int NR_CRAWLERS_PER_CONTROLLER = 10;
+    public ScavengerController() {
+        Properties properties = Configuration.getInstance().getProperties();
+        int threadpoolSize = getThreadpoolSize(properties);
+        threadpool = Executors.newFixedThreadPool(threadpoolSize);
+        NR_CRAWLERS_PER_CONTROLLER = getNrCrawlersPerController(properties);
+    }
+
+    private int getNrCrawlersPerController(Properties properties) {
+
+        String nrCrawlersPerController = properties.getProperty("nr.crawlers.per.controller");
+
+        try {
+            int nr = Integer.parseInt(nrCrawlersPerController);
+            if (nr > 0) {
+                return nr;
+            }
+            return 10;
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid nr.crawlers.per.controller value: expected int. Assuming default value");
+            return 10;
+        }
+    }
+
+    private int getThreadpoolSize(Properties properties) {
+        String threadpoolSize = properties.getProperty("threadpool.size");
+
+        try {
+            int size = Integer.parseInt(threadpoolSize);
+            if (size > 0) {
+                return size;
+            }
+            return 20;
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid threadpool.size value: expected int. Assuming default value");
+            return 20;
+        }
+    }
 
     @Override
     public void start() throws SQLException {

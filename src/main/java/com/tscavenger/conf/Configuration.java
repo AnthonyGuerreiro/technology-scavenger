@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import com.tscavenger.core.IVisitDecider;
 import com.tscavenger.core.IVisitor;
@@ -25,9 +26,20 @@ public class Configuration {
 
     private DAOFactory daoFactory = new DAOFactory();
 
+    private Properties properties = new Properties();
+
     private Configuration() {
         technologies = initList("technologies", "/conf/technologies");
         websites = initList("websites", "/conf/websites");
+        initProperties();
+    }
+
+    private void initProperties() {
+        try {
+            properties.load(getClass().getResourceAsStream("/conf/tscavenger.properties"));
+        } catch (IOException e) {
+            logger.error("Failed to load tscavenger properties", e);
+        }
     }
 
     /**
@@ -77,5 +89,9 @@ public class Configuration {
 
     public DAOFactory getDAOFactory() {
         return daoFactory;
+    }
+
+    public Properties getProperties() {
+        return properties;
     }
 }

@@ -6,7 +6,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Properties;
 
+import com.tscavenger.conf.Configuration;
 import com.tscavenger.log.LogManager;
 import com.tscavenger.log.Logger;
 
@@ -27,8 +29,14 @@ public class DAO implements IDAO {
     }
 
     private String getConnectionUrl() {
-        // TODO get from property file
-        URL url = getClass().getResource("/db/scavengerdb.db");
+
+        Properties properties = Configuration.getInstance().getProperties();
+        String connectionURL = properties.getProperty("db.connection.url");
+        if (connectionURL == null) {
+            connectionURL = "/db/scavengerdb.db";
+        }
+
+        URL url = getClass().getResource(connectionURL);
         return "jdbc:sqlite:" + url.getPath();
     }
 
@@ -48,6 +56,7 @@ public class DAO implements IDAO {
         return connection;
     }
 
+    @Override
     public Website getWebsiteByName(String website) throws SQLException {
         Connection connection = getConnection();
         try {
@@ -64,6 +73,7 @@ public class DAO implements IDAO {
         }
     }
 
+    @Override
     public int addWebsite(String website) throws SQLException {
         Connection connection = getConnection();
         try {
@@ -77,6 +87,7 @@ public class DAO implements IDAO {
         }
     }
 
+    @Override
     public int updateWebsiteWithStatus(String website, Status status, String detail, String url)
             throws SQLException {
 

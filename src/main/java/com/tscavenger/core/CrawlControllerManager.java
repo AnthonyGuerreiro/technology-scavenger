@@ -2,6 +2,9 @@ package com.tscavenger.core;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+
+import com.tscavenger.conf.Configuration;
 
 import edu.uci.ics.crawler4j.crawler.CrawlConfig;
 import edu.uci.ics.crawler4j.crawler.CrawlController;
@@ -17,7 +20,13 @@ public class CrawlControllerManager {
     private static String crawlStorageFolder = "C:/tmp/";
 
     static {
-        // TODO read crawlStorageFolder from property file
+
+        Properties properties = Configuration.getInstance().getProperties();
+        String crawlStorageFolder = properties.getProperty("crawl.storage.folder");
+        if (crawlStorageFolder != null) {
+            CrawlControllerManager.crawlStorageFolder = crawlStorageFolder;
+        }
+
         if (!crawlStorageFolder.endsWith("/")) {
             crawlStorageFolder += "/";
         }
