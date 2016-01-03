@@ -1,7 +1,7 @@
 package com.tscavenger.core.match;
 
 public enum MatchLocation {
-    HTML("HTML");
+    HTML("HTML"), HEADER("header");
 
     private String value;
 
