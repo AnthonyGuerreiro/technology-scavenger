@@ -23,9 +23,24 @@ public class Visitor implements IVisitor {
     private static Logger logger = LogManager.getInstance(Visitor.class);
 
     private Pattern pattern;
+    private boolean matchHeader;
+    private boolean matchHTML = true;
 
     public Visitor() {
-        List<String> technologies = Configuration.getInstance().getTechnologies();
+        Configuration configuration = Configuration.getInstance();
+
+        initGlobalPattern(configuration);
+        initGlobalMatchConfig(configuration);
+    }
+
+    private void initGlobalMatchConfig(Configuration configuration) {
+        matchHeader = configuration.getBooleanFromProperty("global.match.header", false);
+        matchHTML = configuration.getBooleanFromProperty("global.match.html", true);
+
+    }
+
+    private void initGlobalPattern(Configuration configuration) {
+        List<String> technologies = configuration.getTechnologies();
         StringBuilder sb = new StringBuilder("(");
         Iterator<String> it = technologies.iterator();
         while (it.hasNext()) {
@@ -70,12 +85,20 @@ public class Visitor implements IVisitor {
 
     private MatchDetails getMatchDetails(Page page, HtmlParseData htmlParseData) {
 
-        MatchDetails details = getHeaderMatch(page, htmlParseData);
-        if (details != null) {
-            return details;
+        MatchDetails details = null;
+
+        if (matchHeader) {
+            details = getHeaderMatch(page, htmlParseData);
+            if (details != null) {
+                return details;
+            }
         }
 
-        return getHTMLMatch(page, htmlParseData);
+        if (matchHTML) {
+            details = getHTMLMatch(page, htmlParseData);
+        }
+
+        return details;
     }
 
     private MatchDetails getHTMLMatch(Page page, HtmlParseData htmlParseData) {

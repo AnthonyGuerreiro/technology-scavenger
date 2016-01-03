@@ -94,4 +94,12 @@ public class Configuration {
     public Properties getProperties() {
         return properties;
     }
+
+    public boolean getBooleanFromProperty(String property, boolean defaultValue) {
+        String value = properties.getProperty(property);
+        if (value == null) {
+            return defaultValue;
+        }
+        return Boolean.parseBoolean(value);
+    }
 }
