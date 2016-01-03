@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.tscavenger.conf.Configuration;
+import com.tscavenger.core.match.MatchDetails;
 import com.tscavenger.data.ScavengerData;
 import com.tscavenger.db.IDAO;
 import com.tscavenger.db.Status;
@@ -40,7 +41,7 @@ public class ScavengerWorker implements Runnable {
     public void run() {
         logger.info("Processing website " + websiteInput);
         Status newStatus = Status.DOES_NOT_USE_TECHNOLOGY;
-        String detail = null;
+        String details = null;
         String url = null;
 
         try {
@@ -58,7 +59,8 @@ public class ScavengerWorker implements Runnable {
                     if (!data.getPages().isEmpty()) {
                         newStatus = Status.USES_TECHNOLOGY;
                         String domain = data.getPages().iterator().next();
-                        detail = data.getDetail(domain);
+                        MatchDetails mDetails = data.getDetail(domain);
+                        details = mDetails == null ? null : mDetails.toString();
                         url = data.getUrl(domain);
                         break;
                     }
@@ -72,7 +74,7 @@ public class ScavengerWorker implements Runnable {
         try {
             String msg = "Updating website " + websiteInput + " with status " + newStatus.name() + " in db";
             logger.info(msg);
-            int updated = getDAO().updateWebsiteWithStatus(websiteInput, newStatus, detail, url);
+            int updated = getDAO().updateWebsiteWithStatus(websiteInput, newStatus, details, url);
             if (updated == 0) {
                 logger.warn("Failed to update website " + websiteInput + " with status " + newStatus.name()
                         + " in db: no rows were affected");

@@ -6,6 +6,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.tscavenger.conf.Configuration;
+import com.tscavenger.core.match.MatchDetails;
+import com.tscavenger.core.match.MatchLocation;
 import com.tscavenger.data.ScavengerData;
 import com.tscavenger.log.LogManager;
 import com.tscavenger.log.Logger;
@@ -47,24 +49,34 @@ public class Visitor implements IVisitor {
             return;
         }
 
-        Matcher matcher = pattern.matcher(htmlParseData.getHtml());
-        if (matcher.find()) {
+        MatchDetails details = getMatchDetails(page, htmlParseData, visitDecider);
+        boolean matched = details != null;
+
+        if (matched) {
             visitDecider.stopVisit(page);
-            logger.info(page.getWebURL().getDomain() + " uses given technologies");
-            String detail = "Found " + matcher.group(1) + " in HTML";
-            addData(page, detail, data);
-
-            CrawlController controller = new CrawlControllerManager()
-                    .getExistingCrawlController(parentThread);
-            if (controller != null) {
-                controller.shutdown();
-            }
+            addData(page, details, data);
+            stopController(parentThread);
         }
-
     }
 
-    private void addData(Page page, String detail, ScavengerData data) {
-        data.addPage(page, detail);
+    private void stopController(String parentThread) {
+        CrawlController controller = new CrawlControllerManager().getExistingCrawlController(parentThread);
+        if (controller != null) {
+            controller.shutdown();
+        }
+    }
+
+    private MatchDetails getMatchDetails(Page page, HtmlParseData htmlParseData, IVisitDecider visitDecider) {
+        Matcher matcher = pattern.matcher(htmlParseData.getHtml());
+        if (!matcher.find()) {
+            return null;
+        }
+
+        return new MatchDetails(MatchLocation.HTML, matcher.group(1));
+    }
+
+    private void addData(Page page, MatchDetails details, ScavengerData data) {
+        data.addPage(page, details);
     }
 
 }
