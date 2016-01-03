@@ -1,5 +1,7 @@
 package com.tscavenger.log;
 
+import java.sql.SQLException;
+
 public class Logger {
 
     private String getMsg(String msg) {
@@ -32,6 +34,11 @@ public class Logger {
 
     public void info(String msg, Exception e) {
         System.out.println(getMsg(msg));
+        e.printStackTrace();
+    }
+
+    public void warn(String msg, SQLException e) {
+        System.err.println(msg);
         e.printStackTrace();
     }
 }

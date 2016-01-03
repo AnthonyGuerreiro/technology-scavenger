@@ -1,5 +1,7 @@
 package com.tscavenger.core;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -10,7 +12,9 @@ import org.apache.http.Header;
 import com.tscavenger.conf.Configuration;
 import com.tscavenger.core.match.MatchDetails;
 import com.tscavenger.core.match.MatchLocation;
+import com.tscavenger.core.match.TechnologyMatcher;
 import com.tscavenger.data.ScavengerData;
+import com.tscavenger.db.IDAO;
 import com.tscavenger.log.LogManager;
 import com.tscavenger.log.Logger;
 
@@ -22,15 +26,16 @@ public class Visitor implements IVisitor {
 
     private static Logger logger = LogManager.getInstance(Visitor.class);
 
-    private Pattern pattern;
+    private Pattern htmlPattern;
+    private Pattern headerPattern;
     private boolean matchHeader;
     private boolean matchHTML = true;
 
     public Visitor() {
         Configuration configuration = Configuration.getInstance();
 
-        initGlobalPattern(configuration);
         initGlobalMatchConfig(configuration);
+        initMatcherPatterns(configuration);
     }
 
     private void initGlobalMatchConfig(Configuration configuration) {
@@ -39,18 +44,84 @@ public class Visitor implements IVisitor {
 
     }
 
-    private void initGlobalPattern(Configuration configuration) {
+    private void initMatcherPatterns(Configuration configuration) {
         List<String> technologies = configuration.getTechnologies();
+        List<TechnologyMatcher> technologyMatchers = getTechnologyMatchers(configuration, technologies);
+        htmlPattern = getPattern(technologyMatchers, MatchLocation.HTML);
+        headerPattern = getPattern(technologyMatchers, MatchLocation.HEADER);
+    }
+
+    private List<TechnologyMatcher> getTechnologyMatchers(Configuration configuration,
+            List<String> technologies) {
+        List<TechnologyMatcher> technologyMatchers = new ArrayList<>(technologies.size());
+        IDAO dao = configuration.getDAOFactory().getDAO();
+
+        try {
+            for (String technology : technologies) {
+                TechnologyMatcher matcher = dao.getTechnologyMatcher(technology);
+                technologyMatchers.add(matcher);
+            }
+        } catch (SQLException e) {
+            logger.warn("Could not obtain technology matchers from DB", e);
+        }
+
+        return technologyMatchers;
+    }
+
+    private Pattern getPattern(List<TechnologyMatcher> technologyMatchers, MatchLocation location) {
         StringBuilder sb = new StringBuilder("(");
-        Iterator<String> it = technologies.iterator();
+        Iterator<TechnologyMatcher> it = technologyMatchers.iterator();
         while (it.hasNext()) {
-            sb.append(escapeRegexSpecialCharacters(it.next()));
-            if (it.hasNext()) {
-                sb.append("|");
+            TechnologyMatcher matcher = it.next();
+            String matcherString = getMatcherString(matcher, location);
+            if (matcherString != null) {
+                sb.append(escapeRegexSpecialCharacters(matcherString));
+                if (it.hasNext()) {
+                    sb.append("|");
+                }
             }
         }
+        if (sb.charAt(1) == '|') {
+            sb.replace(1, 2, "");
+        }
+        if (sb.charAt(sb.length() - 1) == '|') {
+            sb.replace(sb.length() - 1, sb.length(), "");
+        }
         sb.append(")");
-        pattern = Pattern.compile(sb.toString(), Pattern.CASE_INSENSITIVE);
+        System.out.println("pattern:" + location.name() + "_ " + sb.toString());
+        return Pattern.compile(sb.toString(), Pattern.CASE_INSENSITIVE);
+    }
+
+    private String getMatcherString(TechnologyMatcher matcher, MatchLocation location) {
+
+        String matcherString = null;
+
+        switch (location) {
+            case HEADER:
+                matcherString = matcher.getHeaderMatcher();
+                break;
+            case HTML:
+                matcherString = matcher.getHtmlMatcher();
+                break;
+            default:
+                logger.warn("Unknown MatchLocation: " + location.value() + ". Using default matcher.");
+                return matcher.getTechnology();
+        }
+
+        if (matcherString != null) {
+            return matcherString;
+        }
+        switch (location) {
+            case HEADER:
+                if (matchHeader) {
+                    return matcher.getTechnology();
+                }
+            case HTML:
+                if (matchHTML) {
+                    return matcher.getTechnology();
+                }
+        }
+        return null;
     }
 
     private String escapeRegexSpecialCharacters(String technology) {
@@ -102,7 +173,7 @@ public class Visitor implements IVisitor {
     }
 
     private MatchDetails getHTMLMatch(Page page, HtmlParseData htmlParseData) {
-        Matcher matcher = pattern.matcher(htmlParseData.getHtml());
+        Matcher matcher = htmlPattern.matcher(htmlParseData.getHtml());
         if (!matcher.find()) {
             return null;
         }
@@ -114,7 +185,7 @@ public class Visitor implements IVisitor {
 
         Header[] headers = page.getFetchResponseHeaders();
         for (Header header : headers) {
-            Matcher matcher = pattern.matcher(header.getName());
+            Matcher matcher = headerPattern.matcher(header.getName());
             if (matcher.find()) {
                 return new MatchDetails(MatchLocation.HEADER, matcher.group(1));
             }

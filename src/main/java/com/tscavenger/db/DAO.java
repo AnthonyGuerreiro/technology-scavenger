@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 import com.tscavenger.conf.Configuration;
+import com.tscavenger.core.match.TechnologyMatcher;
 import com.tscavenger.log.LogManager;
 import com.tscavenger.log.Logger;
 
@@ -68,6 +69,27 @@ public class DAO implements IDAO {
             }
             Website site = new Website(rs.getString("name"), Status.fromValue(rs.getInt("status")));
             return site;
+        } finally {
+            close(connection);
+        }
+    }
+
+    @Override
+    public TechnologyMatcher getTechnologyMatcher(String technology) throws SQLException {
+        Connection connection = getConnection();
+        TechnologyMatcher matcher = new TechnologyMatcher();
+        matcher.setTechnology(technology);
+        try {
+            PreparedStatement statement = getStatement(connection,
+                    new QueryFactory().getTechnologyMatcherByName());
+            addParam(statement, 1, technology);
+            ResultSet rs = statement.executeQuery();
+            if (!rs.next()) {
+                return matcher;
+            }
+            matcher.setHeaderMatcher(rs.getString("header"));
+            matcher.setHtmlMatcher(rs.getString("html"));
+            return matcher;
         } finally {
             close(connection);
         }
@@ -139,4 +161,5 @@ public class DAO implements IDAO {
             }
         }
     }
+
 }
