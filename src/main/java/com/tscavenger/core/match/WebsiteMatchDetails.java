@@ -4,17 +4,17 @@ import com.tscavenger.db.Status;
 
 public class WebsiteMatchDetails {
 
-    private MatchLocation location;
+    private WebsiteMatchLocation location;
     private String matched;
 
     private Status status = Status.DOES_NOT_USE_TECHNOLOGY;
     private String url;
 
-    public MatchLocation getLocation() {
+    public WebsiteMatchLocation getLocation() {
         return location;
     }
 
-    public void setLocation(MatchLocation location) {
+    public void setLocation(WebsiteMatchLocation location) {
         this.location = location;
     }
 

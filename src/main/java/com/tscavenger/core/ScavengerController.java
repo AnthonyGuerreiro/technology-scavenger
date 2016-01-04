@@ -81,7 +81,7 @@ public class ScavengerController implements IScavengerController {
             }
 
             try {
-                threadpool.execute(new ScavengerWorker(NR_CRAWLERS_PER_CONTROLLER, website));
+                threadpool.execute(new ScavengerDataCollector(NR_CRAWLERS_PER_CONTROLLER, website));
             } catch (Exception e) {
                 logger.info("Failed to process website " + website, e);
             }

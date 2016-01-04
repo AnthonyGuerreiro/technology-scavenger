@@ -1,11 +1,11 @@
 package com.tscavenger.core.match;
 
-public enum MatchLocation {
+public enum WebsiteMatchLocation {
     HTML("HTML"), HEADER("header");
 
     private String value;
 
-    private MatchLocation(String value) {
+    private WebsiteMatchLocation(String value) {
         this.value = value;
     }
 

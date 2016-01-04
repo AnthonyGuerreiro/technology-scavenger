@@ -10,10 +10,10 @@ import java.util.regex.Pattern;
 import org.apache.http.Header;
 
 import com.tscavenger.conf.Configuration;
-import com.tscavenger.core.match.MatchLocation;
+import com.tscavenger.core.match.WebsiteMatchLocation;
 import com.tscavenger.core.match.TechnologyMatcher;
 import com.tscavenger.core.match.WebsiteMatchDetails;
-import com.tscavenger.data.CrawlControllerManager;
+import com.tscavenger.data.ThreadDataManager;
 import com.tscavenger.data.ScavengerData;
 import com.tscavenger.db.IDAO;
 import com.tscavenger.db.Status;
@@ -49,8 +49,8 @@ public class Visitor implements IVisitor {
     private void initMatcherPatterns(Configuration configuration) {
         List<String> technologies = configuration.getTechnologies();
         List<TechnologyMatcher> technologyMatchers = getTechnologyMatchers(configuration, technologies);
-        htmlPattern = getPattern(technologyMatchers, MatchLocation.HTML);
-        headerPattern = getPattern(technologyMatchers, MatchLocation.HEADER);
+        htmlPattern = getPattern(technologyMatchers, WebsiteMatchLocation.HTML);
+        headerPattern = getPattern(technologyMatchers, WebsiteMatchLocation.HEADER);
     }
 
     private List<TechnologyMatcher> getTechnologyMatchers(Configuration configuration,
@@ -70,7 +70,7 @@ public class Visitor implements IVisitor {
         return technologyMatchers;
     }
 
-    private Pattern getPattern(List<TechnologyMatcher> technologyMatchers, MatchLocation location) {
+    private Pattern getPattern(List<TechnologyMatcher> technologyMatchers, WebsiteMatchLocation location) {
         StringBuilder sb = new StringBuilder("(");
         Iterator<TechnologyMatcher> it = technologyMatchers.iterator();
         while (it.hasNext()) {
@@ -93,7 +93,7 @@ public class Visitor implements IVisitor {
         return Pattern.compile(sb.toString(), Pattern.CASE_INSENSITIVE);
     }
 
-    private String getMatcherString(TechnologyMatcher matcher, MatchLocation location) {
+    private String getMatcherString(TechnologyMatcher matcher, WebsiteMatchLocation location) {
 
         String matcherString = null;
 
@@ -149,7 +149,7 @@ public class Visitor implements IVisitor {
     }
 
     private void stopController(String parentThread) {
-        CrawlController controller = new CrawlControllerManager().getExistingCrawlController(parentThread);
+        CrawlController controller = new ThreadDataManager().getExistingCrawlController(parentThread);
         if (controller != null) {
             controller.shutdown();
         }
@@ -179,7 +179,7 @@ public class Visitor implements IVisitor {
             return new WebsiteMatchDetails();
         }
 
-        return getWebsiteMatchDetails(MatchLocation.HTML, matcher.group(1), page);
+        return getWebsiteMatchDetails(WebsiteMatchLocation.HTML, matcher.group(1), page);
     }
 
     private WebsiteMatchDetails getHeaderMatch(Page page, HtmlParseData htmlParseData) {
@@ -188,13 +188,13 @@ public class Visitor implements IVisitor {
         for (Header header : headers) {
             Matcher matcher = headerPattern.matcher(header.getName());
             if (matcher.find()) {
-                return getWebsiteMatchDetails(MatchLocation.HEADER, matcher.group(1), page);
+                return getWebsiteMatchDetails(WebsiteMatchLocation.HEADER, matcher.group(1), page);
             }
         }
         return new WebsiteMatchDetails();
     }
 
-    private WebsiteMatchDetails getWebsiteMatchDetails(MatchLocation location, String matched, Page page) {
+    private WebsiteMatchDetails getWebsiteMatchDetails(WebsiteMatchLocation location, String matched, Page page) {
 
         WebsiteMatchDetails matchDetails = new WebsiteMatchDetails();
         matchDetails.setLocation(location);

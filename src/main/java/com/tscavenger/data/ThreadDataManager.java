@@ -12,8 +12,9 @@ import edu.uci.ics.crawler4j.fetcher.PageFetcher;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtConfig;
 import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 
-public class CrawlControllerManager {
-    private static Map<Thread, Integer> folderMap = new HashMap<>();
+public class ThreadDataManager {
+
+    private static Map<String, Integer> folderMap = new HashMap<>();
     private static Map<String, CrawlController> controllerMap = new HashMap<>();
     private static int counter;
 
@@ -24,7 +25,7 @@ public class CrawlControllerManager {
         Properties properties = Configuration.getInstance().getProperties();
         String crawlStorageFolder = properties.getProperty("crawl.storage.folder");
         if (crawlStorageFolder != null) {
-            CrawlControllerManager.crawlStorageFolder = crawlStorageFolder;
+            ThreadDataManager.crawlStorageFolder = crawlStorageFolder;
         }
 
         if (!crawlStorageFolder.endsWith("/")) {
@@ -33,8 +34,8 @@ public class CrawlControllerManager {
 
     }
 
-    public CrawlController getCrawlController() throws Exception {
-        int index = getCrawlControllerIndex();
+    public CrawlController getNewCrawlController(String threadName) throws Exception {
+        int index = getCrawlControllerIndex(threadName);
         CrawlController controller = getNewCrawlController(index);
         controllerMap.put(Thread.currentThread().getName(), controller);
         return controller;
@@ -44,13 +45,12 @@ public class CrawlControllerManager {
         return controllerMap.get(threadName);
     }
 
-    private int getCrawlControllerIndex() {
-        Thread thread = Thread.currentThread();
-        if (folderMap.containsKey(thread)) {
-            return folderMap.get(thread);
+    private int getCrawlControllerIndex(String threadName) {
+        if (folderMap.containsKey(threadName)) {
+            return folderMap.get(threadName);
         }
         int index = counter++;
-        folderMap.put(thread, index);
+        folderMap.put(threadName, index);
         return index;
     }
 

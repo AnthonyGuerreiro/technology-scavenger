@@ -6,8 +6,8 @@ import java.util.List;
 
 import com.tscavenger.conf.Configuration;
 import com.tscavenger.core.match.WebsiteMatchDetails;
-import com.tscavenger.data.CrawlControllerManager;
 import com.tscavenger.data.ScavengerData;
+import com.tscavenger.data.ThreadDataManager;
 import com.tscavenger.db.IDAO;
 import com.tscavenger.db.Status;
 import com.tscavenger.log.LogManager;
@@ -15,15 +15,15 @@ import com.tscavenger.log.Logger;
 
 import edu.uci.ics.crawler4j.crawler.CrawlController;
 
-public class ScavengerWorker implements Runnable {
+public class ScavengerDataCollector implements Runnable {
 
-    private static Logger logger = LogManager.getInstance(ScavengerWorker.class);
+    private static Logger logger = LogManager.getInstance(ScavengerDataCollector.class);
 
     private int numberOfCrawlers;
     private String website;
     private String websiteInput;
 
-    public ScavengerWorker(int numberOfCrawlers, String website) {
+    public ScavengerDataCollector(int numberOfCrawlers, String website) {
         this.numberOfCrawlers = numberOfCrawlers;
         websiteInput = website;
         this.website = getWebsite(website);
@@ -40,7 +40,9 @@ public class ScavengerWorker implements Runnable {
     }
 
     private List<Object> crawlAndGetLocalData() throws Exception {
-        CrawlController controller = new CrawlControllerManager().getCrawlController();
+        CrawlController controller = new ThreadDataManager()
+                .getNewCrawlController(Thread.currentThread().getName());
+
         controller.addSeed(website);
         controller.start(Scavenger.class, numberOfCrawlers);
         controller.shutdown();
