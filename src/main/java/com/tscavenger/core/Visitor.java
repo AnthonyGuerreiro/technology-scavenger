@@ -10,12 +10,13 @@ import java.util.regex.Pattern;
 import org.apache.http.Header;
 
 import com.tscavenger.conf.Configuration;
-import com.tscavenger.core.match.WebsiteMatchDetails;
 import com.tscavenger.core.match.MatchLocation;
 import com.tscavenger.core.match.TechnologyMatcher;
+import com.tscavenger.core.match.WebsiteMatchDetails;
 import com.tscavenger.data.CrawlControllerManager;
 import com.tscavenger.data.ScavengerData;
 import com.tscavenger.db.IDAO;
+import com.tscavenger.db.Status;
 import com.tscavenger.log.LogManager;
 import com.tscavenger.log.Logger;
 
@@ -89,7 +90,6 @@ public class Visitor implements IVisitor {
             sb.replace(sb.length() - 1, sb.length(), "");
         }
         sb.append(")");
-        System.out.println("pattern:" + location.name() + "_ " + sb.toString());
         return Pattern.compile(sb.toString(), Pattern.CASE_INSENSITIVE);
     }
 
@@ -131,19 +131,19 @@ public class Visitor implements IVisitor {
     }
 
     @Override
-    public void visit(Page page, HtmlParseData htmlParseData, ScavengerData data, IURLFollowDecider visitDecider,
-            String parentThread) {
+    public void visit(Page page, HtmlParseData htmlParseData, ScavengerData data,
+            IURLFollowDecider visitDecider, String parentThread) {
 
         if (visitDecider.skipsDomain(page.getWebURL().getDomain())) {
             return;
         }
 
-        WebsiteMatchDetails details = getMatchDetails(page, htmlParseData);
-        boolean matched = details != null;
+        WebsiteMatchDetails matchDetails = getMatchDetails(page, htmlParseData);
+        boolean matched = matchDetails.getStatus() == Status.USES_TECHNOLOGY;
 
         if (matched) {
             visitDecider.stopVisit(page);
-            addData(page, details, data);
+            data.setMatchDetails(matchDetails);
             stopController(parentThread);
         }
     }
@@ -157,11 +157,11 @@ public class Visitor implements IVisitor {
 
     private WebsiteMatchDetails getMatchDetails(Page page, HtmlParseData htmlParseData) {
 
-        WebsiteMatchDetails details = null;
+        WebsiteMatchDetails details = new WebsiteMatchDetails();
 
         if (matchHeader) {
             details = getHeaderMatch(page, htmlParseData);
-            if (details != null) {
+            if (details.getStatus() != Status.DOES_NOT_USE_TECHNOLOGY) {
                 return details;
             }
         }
@@ -176,10 +176,10 @@ public class Visitor implements IVisitor {
     private WebsiteMatchDetails getHTMLMatch(Page page, HtmlParseData htmlParseData) {
         Matcher matcher = htmlPattern.matcher(htmlParseData.getHtml());
         if (!matcher.find()) {
-            return null;
+            return new WebsiteMatchDetails();
         }
 
-        return new WebsiteMatchDetails(MatchLocation.HTML, matcher.group(1));
+        return getWebsiteMatchDetails(MatchLocation.HTML, matcher.group(1), page);
     }
 
     private WebsiteMatchDetails getHeaderMatch(Page page, HtmlParseData htmlParseData) {
@@ -188,14 +188,20 @@ public class Visitor implements IVisitor {
         for (Header header : headers) {
             Matcher matcher = headerPattern.matcher(header.getName());
             if (matcher.find()) {
-                return new WebsiteMatchDetails(MatchLocation.HEADER, matcher.group(1));
+                return getWebsiteMatchDetails(MatchLocation.HEADER, matcher.group(1), page);
             }
         }
-        return null;
+        return new WebsiteMatchDetails();
     }
 
-    private void addData(Page page, WebsiteMatchDetails details, ScavengerData data) {
-        data.addPage(page, details);
+    private WebsiteMatchDetails getWebsiteMatchDetails(MatchLocation location, String matched, Page page) {
+
+        WebsiteMatchDetails matchDetails = new WebsiteMatchDetails();
+        matchDetails.setLocation(location);
+        matchDetails.setMatched(matched);
+        matchDetails.setStatus(Status.USES_TECHNOLOGY);
+        matchDetails.setUrl(page.getWebURL().getURL());
+        return matchDetails;
     }
 
 }

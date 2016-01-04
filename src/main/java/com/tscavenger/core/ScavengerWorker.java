@@ -51,46 +51,56 @@ public class ScavengerWorker implements Runnable {
     @Override
     public void run() {
         logger.info("Processing website " + websiteInput);
-        Status newStatus = Status.DOES_NOT_USE_TECHNOLOGY;
-        String details = null;
-        String url = null;
         List<Object> localDataList = new ArrayList<>();
+        WebsiteMatchDetails websiteMatchDetails = null;
         try {
-
             localDataList = crawlAndGetLocalData();
-
-            for (Object localData : localDataList) {
-                if (localData instanceof ScavengerData) {
-                    ScavengerData data = (ScavengerData) localData;
-                    if (!data.getPages().isEmpty()) {
-                        newStatus = Status.USES_TECHNOLOGY;
-                        String domain = data.getPages().iterator().next();
-                        WebsiteMatchDetails mDetails = data.getDetail(domain);
-                        details = mDetails == null ? null : mDetails.toString();
-                        url = data.getUrl(domain);
-                        break;
-                    }
-                }
-            }
-
+            websiteMatchDetails = getMatchDetails(localDataList);
         } catch (Exception e) {
             logger.error("Couldn't initialize controller", e);
-            newStatus = Status.NOT_PROCESSED;
+            websiteMatchDetails = getWebsiteMatchDetailsWithStatus(Status.NOT_PROCESSED);
         }
-        updateDB(newStatus, details, url);
+        updateDB(websiteMatchDetails);
     }
 
-    private void updateDB(Status newStatus, String details, String url) {
+    private WebsiteMatchDetails getMatchDetails(List<Object> localDataList) {
+
+        for (Object localData : localDataList) {
+            if (localData instanceof ScavengerData) {
+                ScavengerData data = (ScavengerData) localData;
+                boolean matched = data.getMatchDetails() != null;
+
+                if (!matched) {
+                    continue;
+                }
+                return data.getMatchDetails();
+            }
+        }
+
+        return getWebsiteMatchDetailsWithStatus(Status.DOES_NOT_USE_TECHNOLOGY);
+    }
+
+    private WebsiteMatchDetails getWebsiteMatchDetailsWithStatus(Status status) {
+        WebsiteMatchDetails matchDetails = new WebsiteMatchDetails();
+        matchDetails.setStatus(status);
+        return matchDetails;
+    }
+
+    private void updateDB(WebsiteMatchDetails matchDetails) {
+        Status status = matchDetails.getStatus();
+        String log = matchDetails.toString();
+        String url = matchDetails.getUrl();
+
         try {
-            String msg = "Updating website " + websiteInput + " with status " + newStatus.name() + " in db";
+            String msg = "Updating website " + websiteInput + " with status " + status.name() + " in db";
             logger.info(msg);
-            int updated = getDAO().updateWebsiteWithStatus(websiteInput, newStatus, details, url);
+            int updated = getDAO().updateWebsiteWithStatus(websiteInput, status, log, url);
             if (updated == 0) {
-                logger.warn("Failed to update website " + websiteInput + " with status " + newStatus.name()
+                logger.warn("Failed to update website " + websiteInput + " with status " + status.name()
                         + " in db: no rows were affected");
             }
         } catch (SQLException e) {
-            String msg = "Could not update website " + websiteInput + " with status " + newStatus.name()
+            String msg = "Could not update website " + websiteInput + " with status " + status.name()
                     + " in db";
             logger.error(msg, e);
         }
