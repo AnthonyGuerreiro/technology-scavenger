@@ -14,5 +14,10 @@ public interface IScavengerController {
      */
     List<String> getWebsitesUsingTechnologies();
 
+    /**
+     * Starts the controller
+     * 
+     * @throws SQLException
+     */
     void start() throws SQLException;
 }

@@ -96,6 +96,10 @@ public class DAO implements IDAO {
         }
     }
 
+    /**
+     * Adds the {@code website} to the DB in its default state
+     * {@link Status#NOT_PROCESSED}
+     */
     @Override
     public int addWebsite(String website) throws SQLException {
         Connection connection = getConnection();

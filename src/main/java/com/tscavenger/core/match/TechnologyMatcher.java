@@ -5,6 +5,11 @@ public class TechnologyMatcher {
     private String headerMatcher;
     private String htmlMatcher;
 
+    /**
+     *
+     * @return the String to match this particular technology with, if searching
+     *         in the header
+     */
     public String getHeaderMatcher() {
         return headerMatcher;
     }
@@ -13,6 +18,11 @@ public class TechnologyMatcher {
         this.headerMatcher = headerMatcher;
     }
 
+    /**
+     *
+     * @return the String to match this particular technology with, if searching
+     *         in the HTML
+     */
     public String getHtmlMatcher() {
         return htmlMatcher;
     }
@@ -21,6 +31,10 @@ public class TechnologyMatcher {
         this.htmlMatcher = htmlMatcher;
     }
 
+    /**
+     *
+     * @return the technology this matcher is binded with
+     */
     public String getTechnology() {
         return technology;
     }

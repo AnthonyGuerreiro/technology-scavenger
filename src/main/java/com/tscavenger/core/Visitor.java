@@ -10,11 +10,11 @@ import java.util.regex.Pattern;
 import org.apache.http.Header;
 
 import com.tscavenger.conf.Configuration;
-import com.tscavenger.core.match.WebsiteMatchLocation;
 import com.tscavenger.core.match.TechnologyMatcher;
 import com.tscavenger.core.match.WebsiteMatchDetails;
-import com.tscavenger.data.ThreadDataManager;
+import com.tscavenger.core.match.WebsiteMatchLocation;
 import com.tscavenger.data.ScavengerData;
+import com.tscavenger.data.ThreadDataManager;
 import com.tscavenger.db.IDAO;
 import com.tscavenger.db.Status;
 import com.tscavenger.log.LogManager;
@@ -142,7 +142,7 @@ public class Visitor implements IVisitor {
         boolean matched = matchDetails.getStatus() == Status.USES_TECHNOLOGY;
 
         if (matched) {
-            visitDecider.stopVisit(page);
+            visitDecider.stopVisit(page.getWebURL().getDomain());
             data.setMatchDetails(matchDetails);
             stopController(parentThread);
         }
@@ -194,7 +194,8 @@ public class Visitor implements IVisitor {
         return new WebsiteMatchDetails();
     }
 
-    private WebsiteMatchDetails getWebsiteMatchDetails(WebsiteMatchLocation location, String matched, Page page) {
+    private WebsiteMatchDetails getWebsiteMatchDetails(WebsiteMatchLocation location, String matched,
+            Page page) {
 
         WebsiteMatchDetails matchDetails = new WebsiteMatchDetails();
         matchDetails.setLocation(location);

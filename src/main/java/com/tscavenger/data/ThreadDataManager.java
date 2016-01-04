@@ -15,6 +15,8 @@ import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 public class ThreadDataManager {
 
     private static Map<String, Integer> folderMap = new HashMap<>();
+
+    // TODO clear values from controller map as they stop being used
     private static Map<String, CrawlController> controllerMap = new HashMap<>();
     private static int counter;
 

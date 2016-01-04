@@ -28,8 +28,8 @@ public class URLFollowDecider implements IURLFollowDecider {
     }
 
     @Override
-    public void stopVisit(Page referringPage) {
-        skippedDomains.add(referringPage.getWebURL().getDomain());
+    public void stopVisit(String domain) {
+        skippedDomains.add(domain);
     }
 
     @Override

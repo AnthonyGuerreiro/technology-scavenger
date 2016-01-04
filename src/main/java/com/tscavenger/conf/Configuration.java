@@ -12,6 +12,10 @@ import com.tscavenger.db.DAOFactory;
 import com.tscavenger.log.LogManager;
 import com.tscavenger.log.Logger;
 
+/**
+ * Base configuration class
+ *
+ */
 public class Configuration {
 
     private final static Configuration configuration = new Configuration();
@@ -19,7 +23,7 @@ public class Configuration {
     private static Logger logger = LogManager.getInstance(Configuration.class);
 
     private IVisitor visitor;
-    private IURLFollowDecider visitDecider;
+    private IURLFollowDecider urlFollowDecider;
 
     private List<String> technologies;
     private List<String> websites;
@@ -29,6 +33,8 @@ public class Configuration {
     private Properties properties = new Properties();
 
     private Configuration() {
+
+        // TODO read file location from properties
         technologies = initList("technologies", "/conf/technologies");
         websites = initList("websites", "/conf/websites");
         initProperties();
@@ -63,38 +69,82 @@ public class Configuration {
         return configuration;
     }
 
+    /**
+     *
+     * @return the {@link IVisitor} to use throughout the application
+     */
     public IVisitor getVisitor() {
         return visitor;
     }
 
+    /**
+     * Sets the {@link IVisitor} to use throughout the application.
+     *
+     * @param visitor
+     */
     public void setVisitor(IVisitor visitor) {
         this.visitor = visitor;
     }
 
-    public IURLFollowDecider getVisitDecider() {
-        return visitDecider;
+    /**
+     *
+     * @return the {@link IURLFollowDecider} to use throughout the application
+     */
+    public IURLFollowDecider getUrlFollowDecider() {
+        return urlFollowDecider;
     }
 
-    public void setVisitDecider(IURLFollowDecider visitDecider) {
-        this.visitDecider = visitDecider;
+    /**
+     * Sets the {@link IURLFollowDecider} to use throughout the application.
+     *
+     * @param urlFollowDecider
+     */
+    public void setUrlFollowDecider(IURLFollowDecider urlFollowDecider) {
+        this.urlFollowDecider = urlFollowDecider;
     }
 
+    /**
+     *
+     * @return technologies listed in file
+     */
     public List<String> getTechnologies() {
         return technologies;
     }
 
+    /**
+     *
+     * @return websites listed in file
+     */
     public List<String> getWebsites() {
         return websites;
     }
 
+    /**
+     *
+     * @return the {@link DAOFactory} to use throughout the application
+     */
     public DAOFactory getDAOFactory() {
         return daoFactory;
     }
 
+    /**
+     *
+     * @return {@link Properties} instance loaded with properties found in
+     *         tscavenger.properties
+     */
     public Properties getProperties() {
         return properties;
     }
 
+    /**
+     *
+     * @param property
+     * @param defaultValue
+     * @return boolean value of the property with key {@code property}, or
+     *         {@code defaultValue} if the {@code property} does not exist
+     * 
+     * @see #getProperties()
+     */
     public boolean getBooleanFromProperty(String property, boolean defaultValue) {
         String value = properties.getProperty(property);
         if (value == null) {

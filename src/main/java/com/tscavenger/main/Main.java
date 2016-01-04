@@ -30,7 +30,7 @@ public class Main {
 
     private static void setup(String[] args) {
         Configuration configuration = Configuration.getInstance();
-        configuration.setVisitDecider(new URLFollowDecider());
+        configuration.setUrlFollowDecider(new URLFollowDecider());
         configuration.setVisitor(new Visitor());
     }
 

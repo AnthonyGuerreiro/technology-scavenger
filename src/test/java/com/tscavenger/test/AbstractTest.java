@@ -16,7 +16,7 @@ public class AbstractTest {
 
     protected void setup() {
         Configuration configuration = Configuration.getInstance();
-        configuration.setVisitDecider(new URLFollowDecider());
+        configuration.setUrlFollowDecider(new URLFollowDecider());
         configuration.setVisitor(new Visitor());
     }
 }

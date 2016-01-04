@@ -22,7 +22,7 @@ public class Scavenger extends WebCrawler implements IScavenger {
 
     public Scavenger() {
         Configuration configuration = Configuration.getInstance();
-        visitDecider = configuration.getVisitDecider();
+        visitDecider = configuration.getUrlFollowDecider();
         visitor = configuration.getVisitor();
         parentThread = Thread.currentThread().getName();
     }

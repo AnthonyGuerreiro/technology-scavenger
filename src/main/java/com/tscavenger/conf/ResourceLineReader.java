@@ -16,6 +16,15 @@ public class ResourceLineReader {
 
     private static Logger logger = LogManager.getInstance(ResourceLineReader.class);
 
+    /**
+     * Reads the {@code resource} file line by line and returns it as a
+     * List&lt;String&gt;
+     *
+     * @param resource
+     * @return List&lt;String&gt; representing the lines of the {@code resource}
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     public List<String> getLines(String resource) throws IOException, URISyntaxException {
 
         URL url = this.getClass().getResource(resource);
