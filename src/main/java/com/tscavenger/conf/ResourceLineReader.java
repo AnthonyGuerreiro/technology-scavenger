@@ -12,9 +12,9 @@ import java.util.List;
 import com.tscavenger.log.LogManager;
 import com.tscavenger.log.Logger;
 
-public class LineResourceReader {
+public class ResourceLineReader {
 
-    private static Logger logger = LogManager.getInstance(LineResourceReader.class);
+    private static Logger logger = LogManager.getInstance(ResourceLineReader.class);
 
     public List<String> getLines(String resource) throws IOException, URISyntaxException {
 

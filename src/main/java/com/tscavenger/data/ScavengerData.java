@@ -5,17 +5,17 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.tscavenger.core.match.MatchDetails;
+import com.tscavenger.core.match.WebsiteMatchDetails;
 
 import edu.uci.ics.crawler4j.crawler.Page;
 
 public class ScavengerData {
 
     private Set<String> pages = new HashSet<>();
-    private Map<String, MatchDetails> detailMap = new HashMap<>();
+    private Map<String, WebsiteMatchDetails> detailMap = new HashMap<>();
     private Map<String, String> urlMap = new HashMap<>();
 
-    public void addPage(Page page, MatchDetails details) {
+    public void addPage(Page page, WebsiteMatchDetails details) {
         String domain = page.getWebURL().getDomain();
         pages.add(domain);
         detailMap.put(domain, details);
@@ -26,7 +26,7 @@ public class ScavengerData {
         return pages;
     }
 
-    public MatchDetails getDetail(String domain) {
+    public WebsiteMatchDetails getDetail(String domain) {
         return detailMap.get(domain);
     }
 

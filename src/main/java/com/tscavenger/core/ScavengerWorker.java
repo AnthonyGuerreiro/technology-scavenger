@@ -1,10 +1,12 @@
 package com.tscavenger.core;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.tscavenger.conf.Configuration;
-import com.tscavenger.core.match.MatchDetails;
+import com.tscavenger.core.match.WebsiteMatchDetails;
+import com.tscavenger.data.CrawlControllerManager;
 import com.tscavenger.data.ScavengerData;
 import com.tscavenger.db.IDAO;
 import com.tscavenger.db.Status;
@@ -37,21 +39,25 @@ public class ScavengerWorker implements Runnable {
         return website;
     }
 
+    private List<Object> crawlAndGetLocalData() throws Exception {
+        CrawlController controller = new CrawlControllerManager().getCrawlController();
+        controller.addSeed(website);
+        controller.start(Scavenger.class, numberOfCrawlers);
+        controller.shutdown();
+        controller.waitUntilFinish();
+        return controller.getCrawlersLocalData();
+    }
+
     @Override
     public void run() {
         logger.info("Processing website " + websiteInput);
         Status newStatus = Status.DOES_NOT_USE_TECHNOLOGY;
         String details = null;
         String url = null;
-
+        List<Object> localDataList = new ArrayList<>();
         try {
-            CrawlController controller = new CrawlControllerManager().getCrawlController();
-            controller.addSeed(website);
-            controller.start(Scavenger.class, numberOfCrawlers);
-            controller.shutdown();
-            controller.waitUntilFinish();
 
-            List<Object> localDataList = controller.getCrawlersLocalData();
+            localDataList = crawlAndGetLocalData();
 
             for (Object localData : localDataList) {
                 if (localData instanceof ScavengerData) {
@@ -59,7 +65,7 @@ public class ScavengerWorker implements Runnable {
                     if (!data.getPages().isEmpty()) {
                         newStatus = Status.USES_TECHNOLOGY;
                         String domain = data.getPages().iterator().next();
-                        MatchDetails mDetails = data.getDetail(domain);
+                        WebsiteMatchDetails mDetails = data.getDetail(domain);
                         details = mDetails == null ? null : mDetails.toString();
                         url = data.getUrl(domain);
                         break;
@@ -71,6 +77,10 @@ public class ScavengerWorker implements Runnable {
             logger.error("Couldn't initialize controller", e);
             newStatus = Status.NOT_PROCESSED;
         }
+        updateDB(newStatus, details, url);
+    }
+
+    private void updateDB(Status newStatus, String details, String url) {
         try {
             String msg = "Updating website " + websiteInput + " with status " + newStatus.name() + " in db";
             logger.info(msg);

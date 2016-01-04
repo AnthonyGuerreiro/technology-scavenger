@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 import com.tscavenger.conf.Configuration;
 import com.tscavenger.db.IDAO;
 import com.tscavenger.db.Status;
-import com.tscavenger.db.Website;
+import com.tscavenger.entity.Website;
 import com.tscavenger.log.LogManager;
 import com.tscavenger.log.Logger;
 

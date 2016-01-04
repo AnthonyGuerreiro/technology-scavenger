@@ -10,6 +10,7 @@ import java.util.Properties;
 
 import com.tscavenger.conf.Configuration;
 import com.tscavenger.core.match.TechnologyMatcher;
+import com.tscavenger.entity.Website;
 import com.tscavenger.log.LogManager;
 import com.tscavenger.log.Logger;
 

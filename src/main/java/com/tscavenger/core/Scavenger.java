@@ -16,7 +16,7 @@ public class Scavenger extends WebCrawler implements IScavenger {
 
     private ScavengerData data = new ScavengerData();
 
-    private IVisitDecider visitDecider;
+    private IURLFollowDecider visitDecider;
     private IVisitor visitor;
     private String parentThread;
 

@@ -3,7 +3,7 @@ package com.tscavenger.main;
 import com.tscavenger.conf.Configuration;
 import com.tscavenger.core.IScavengerController;
 import com.tscavenger.core.ScavengerController;
-import com.tscavenger.core.VisitDecider;
+import com.tscavenger.core.URLFollowDecider;
 import com.tscavenger.core.Visitor;
 import com.tscavenger.log.LogManager;
 import com.tscavenger.log.Logger;
@@ -30,7 +30,7 @@ public class Main {
 
     private static void setup(String[] args) {
         Configuration configuration = Configuration.getInstance();
-        configuration.setVisitDecider(new VisitDecider());
+        configuration.setVisitDecider(new URLFollowDecider());
         configuration.setVisitor(new Visitor());
     }
 

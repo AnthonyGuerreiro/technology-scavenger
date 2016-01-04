@@ -1,4 +1,6 @@
-package com.tscavenger.db;
+package com.tscavenger.entity;
+
+import com.tscavenger.db.Status;
 
 public class Website {
     private String name;

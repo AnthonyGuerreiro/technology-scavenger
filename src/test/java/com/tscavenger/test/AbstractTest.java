@@ -1,7 +1,7 @@
 package com.tscavenger.test;
 
 import com.tscavenger.conf.Configuration;
-import com.tscavenger.core.VisitDecider;
+import com.tscavenger.core.URLFollowDecider;
 import com.tscavenger.core.Visitor;
 
 public class AbstractTest {
@@ -16,7 +16,7 @@ public class AbstractTest {
 
     protected void setup() {
         Configuration configuration = Configuration.getInstance();
-        configuration.setVisitDecider(new VisitDecider());
+        configuration.setVisitDecider(new URLFollowDecider());
         configuration.setVisitor(new Visitor());
     }
 }

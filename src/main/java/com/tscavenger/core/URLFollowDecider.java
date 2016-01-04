@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import edu.uci.ics.crawler4j.crawler.Page;
 import edu.uci.ics.crawler4j.url.WebURL;
 
-public class VisitDecider implements IVisitDecider {
+public class URLFollowDecider implements IURLFollowDecider {
 
     private final static Pattern FILTERS = Pattern.compile(".*(\\.(css|js|gif|jpg|png|mp3|mp3|zip|gz))$");
 

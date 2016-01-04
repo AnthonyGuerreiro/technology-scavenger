@@ -1,11 +1,11 @@
 package com.tscavenger.core.match;
 
-public class MatchDetails {
+public class WebsiteMatchDetails {
 
     private MatchLocation location;
     private String matched;
 
-    public MatchDetails(MatchLocation location, String matched) {
+    public WebsiteMatchDetails(MatchLocation location, String matched) {
         this.location = location;
         this.matched = matched;
     }

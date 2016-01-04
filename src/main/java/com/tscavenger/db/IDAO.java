@@ -3,6 +3,7 @@ package com.tscavenger.db;
 import java.sql.SQLException;
 
 import com.tscavenger.core.match.TechnologyMatcher;
+import com.tscavenger.entity.Website;
 
 public interface IDAO {
     Website getWebsiteByName(String website) throws SQLException;

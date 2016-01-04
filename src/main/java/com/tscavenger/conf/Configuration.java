@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import com.tscavenger.core.IVisitDecider;
+import com.tscavenger.core.IURLFollowDecider;
 import com.tscavenger.core.IVisitor;
 import com.tscavenger.db.DAOFactory;
 import com.tscavenger.log.LogManager;
@@ -19,7 +19,7 @@ public class Configuration {
     private static Logger logger = LogManager.getInstance(Configuration.class);
 
     private IVisitor visitor;
-    private IVisitDecider visitDecider;
+    private IURLFollowDecider visitDecider;
 
     private List<String> technologies;
     private List<String> websites;
@@ -52,7 +52,7 @@ public class Configuration {
      */
     private List<String> initList(String name, String resource) {
         try {
-            return new LineResourceReader().getLines(resource);
+            return new ResourceLineReader().getLines(resource);
         } catch (IOException | URISyntaxException e) {
             logger.error("Error reading " + name + " file", e);
             return new ArrayList<>();
@@ -71,11 +71,11 @@ public class Configuration {
         this.visitor = visitor;
     }
 
-    public IVisitDecider getVisitDecider() {
+    public IURLFollowDecider getVisitDecider() {
         return visitDecider;
     }
 
-    public void setVisitDecider(IVisitDecider visitDecider) {
+    public void setVisitDecider(IURLFollowDecider visitDecider) {
         this.visitDecider = visitDecider;
     }
 

@@ -10,9 +10,10 @@ import java.util.regex.Pattern;
 import org.apache.http.Header;
 
 import com.tscavenger.conf.Configuration;
-import com.tscavenger.core.match.MatchDetails;
+import com.tscavenger.core.match.WebsiteMatchDetails;
 import com.tscavenger.core.match.MatchLocation;
 import com.tscavenger.core.match.TechnologyMatcher;
+import com.tscavenger.data.CrawlControllerManager;
 import com.tscavenger.data.ScavengerData;
 import com.tscavenger.db.IDAO;
 import com.tscavenger.log.LogManager;
@@ -130,14 +131,14 @@ public class Visitor implements IVisitor {
     }
 
     @Override
-    public void visit(Page page, HtmlParseData htmlParseData, ScavengerData data, IVisitDecider visitDecider,
+    public void visit(Page page, HtmlParseData htmlParseData, ScavengerData data, IURLFollowDecider visitDecider,
             String parentThread) {
 
         if (visitDecider.skipsDomain(page.getWebURL().getDomain())) {
             return;
         }
 
-        MatchDetails details = getMatchDetails(page, htmlParseData);
+        WebsiteMatchDetails details = getMatchDetails(page, htmlParseData);
         boolean matched = details != null;
 
         if (matched) {
@@ -154,9 +155,9 @@ public class Visitor implements IVisitor {
         }
     }
 
-    private MatchDetails getMatchDetails(Page page, HtmlParseData htmlParseData) {
+    private WebsiteMatchDetails getMatchDetails(Page page, HtmlParseData htmlParseData) {
 
-        MatchDetails details = null;
+        WebsiteMatchDetails details = null;
 
         if (matchHeader) {
             details = getHeaderMatch(page, htmlParseData);
@@ -172,28 +173,28 @@ public class Visitor implements IVisitor {
         return details;
     }
 
-    private MatchDetails getHTMLMatch(Page page, HtmlParseData htmlParseData) {
+    private WebsiteMatchDetails getHTMLMatch(Page page, HtmlParseData htmlParseData) {
         Matcher matcher = htmlPattern.matcher(htmlParseData.getHtml());
         if (!matcher.find()) {
             return null;
         }
 
-        return new MatchDetails(MatchLocation.HTML, matcher.group(1));
+        return new WebsiteMatchDetails(MatchLocation.HTML, matcher.group(1));
     }
 
-    private MatchDetails getHeaderMatch(Page page, HtmlParseData htmlParseData) {
+    private WebsiteMatchDetails getHeaderMatch(Page page, HtmlParseData htmlParseData) {
 
         Header[] headers = page.getFetchResponseHeaders();
         for (Header header : headers) {
             Matcher matcher = headerPattern.matcher(header.getName());
             if (matcher.find()) {
-                return new MatchDetails(MatchLocation.HEADER, matcher.group(1));
+                return new WebsiteMatchDetails(MatchLocation.HEADER, matcher.group(1));
             }
         }
         return null;
     }
 
-    private void addData(Page page, MatchDetails details, ScavengerData data) {
+    private void addData(Page page, WebsiteMatchDetails details, ScavengerData data) {
         data.addPage(page, details);
     }
 

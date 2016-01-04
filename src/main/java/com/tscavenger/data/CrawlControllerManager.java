@@ -1,4 +1,4 @@
-package com.tscavenger.core;
+package com.tscavenger.data;
 
 import java.util.HashMap;
 import java.util.Map;
